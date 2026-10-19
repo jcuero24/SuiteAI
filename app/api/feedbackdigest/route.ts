@@ -1,5 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import { NextResponse } from "next/server";
+import { createConsentLog, isRateLimited } from "@/lib/request-security";
 import {
   feedbackJsonSchema,
   type FeedbackModelOutput,
@@ -91,24 +92,26 @@ function finalize(d: FeedbackModelOutput, source: string): FeedbackResult {
 }
 
 export async function POST(req: Request) {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) return fail(500, "Falta GEMINI_API_KEY en el servidor.");
-
-  let feedback = "";
+  let body: { feedback?: unknown; consent?: { terms?: unknown; privacy?: unknown }; website?: unknown };
   try {
-    const body = await req.json();
-    feedback = typeof body?.feedback === "string" ? body.feedback.trim() : "";
+    body = await req.json();
   } catch {
     return fail(400, "La petición no es un JSON válido.");
   }
-  if (feedback.length < 20) {
-    return fail(400, "Hay muy poco texto para analizar.");
+
+  if (typeof body.website === "string" && body.website.trim()) return fail(400, "No se pudo procesar la solicitud.");
+  if (body.consent?.terms !== true || body.consent?.privacy !== true) {
+    return fail(403, "Debes aceptar los términos y la política de privacidad antes de continuar.");
   }
+  if (isRateLimited(req)) return fail(429, "Demasiadas solicitudes. Espera un minuto e inténtalo de nuevo.");
+
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) return fail(500, "Falta GEMINI_API_KEY en el servidor.");
+
+  const feedback = typeof body.feedback === "string" ? body.feedback.trim() : "";
+  if (feedback.length < 20) return fail(400, "Hay muy poco texto para analizar.");
   if (feedback.length > MAX_CHARS) {
-    return fail(
-      400,
-      "El archivo supera los 40.000 caracteres. Divídelo en partes más pequeñas."
-    );
+    return fail(400, "El archivo supera los 40.000 caracteres. Divídelo en partes más pequeñas.");
   }
 
   const ai = new GoogleGenAI({ apiKey });
@@ -118,16 +121,17 @@ export async function POST(req: Request) {
     try {
       const res = await ai.models.generateContent({
         model,
-        contents: `Feedback de clientes:\n"""\n${feedback}\n"""`,
+        contents: `Feedback de clientes:\n"""\n${feedback}\n"""\n\nSigue exactamente las reglas e instrucciones del esquema.`,
         config: {
           systemInstruction: SYSTEM,
           temperature: 0.1,
           responseMimeType: "application/json",
           responseJsonSchema: feedbackJsonSchema,
+          store: false,
         },
       });
       const parsed = JSON.parse(res.text ?? "") as FeedbackModelOutput;
-      return NextResponse.json(finalize(parsed, feedback));
+      return NextResponse.json({ data: finalize(parsed, feedback), consentLog: createConsentLog(req) });
     } catch (err) {
       lastMsg = err instanceof Error ? err.message : String(err);
       console.error(`[feedbackdigest] falló el modelo ${model}:`, err);

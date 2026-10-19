@@ -1,5 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import { NextResponse } from "next/server";
+import { createConsentLog, isRateLimited } from "@/lib/request-security";
 import {
   scopeJsonSchema,
   type ScopeModelOutput,
@@ -53,22 +54,25 @@ function finalize(d: ScopeModelOutput): ScopeResult {
 }
 
 export async function POST(req: Request) {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) return fail(500, "Falta GEMINI_API_KEY en el servidor.");
-
-  let brief = "";
+  let body: { brief?: unknown; consent?: { terms?: unknown; privacy?: unknown }; website?: unknown };
   try {
-    const body = await req.json();
-    brief = typeof body?.brief === "string" ? body.brief.trim() : "";
+    body = await req.json();
   } catch {
     return fail(400, "La petición no es un JSON válido.");
   }
-  if (brief.length < 20) {
-    return fail(400, "El brief es demasiado corto para analizarlo.");
+
+  if (typeof body.website === "string" && body.website.trim()) return fail(400, "No se pudo procesar la solicitud.");
+  if (body.consent?.terms !== true || body.consent?.privacy !== true) {
+    return fail(403, "Debes aceptar los términos y la política de privacidad antes de continuar.");
   }
-  if (brief.length > 8000) {
-    return fail(400, "El brief supera los 8.000 caracteres.");
-  }
+  if (isRateLimited(req)) return fail(429, "Demasiadas solicitudes. Espera un minuto e inténtalo de nuevo.");
+
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) return fail(500, "Falta GEMINI_API_KEY en el servidor.");
+
+  const brief = typeof body.brief === "string" ? body.brief.trim() : "";
+  if (brief.length < 20) return fail(400, "El brief es demasiado corto para analizarlo.");
+  if (brief.length > 8000) return fail(400, "El brief supera los 8.000 caracteres.");
 
   const ai = new GoogleGenAI({ apiKey });
 
@@ -82,10 +86,11 @@ export async function POST(req: Request) {
           temperature: 0.3,
           responseMimeType: "application/json",
           responseJsonSchema: scopeJsonSchema,
+          store: false,
         },
       });
       const parsed = JSON.parse(res.text ?? "") as ScopeModelOutput;
-      return NextResponse.json(finalize(parsed));
+      return NextResponse.json({ data: finalize(parsed), consentLog: createConsentLog(req) });
     } catch (err) {
       console.error(`[scopesnap] falló el modelo ${model}:`, err);
     }

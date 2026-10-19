@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, type DragEvent } from "react";
 import { useFeedbackDigest } from "@/hooks/useFeedbackDigest";
+import ConsentLogCard from "@/components/ConsentLogCard";
 
 const SAMPLE = `El panel es muy lento al cargar los reportes, tardo minutos esperando
 Me encanta la interfaz, es muy fácil de usar
@@ -26,7 +27,10 @@ export default function FeedbackDigestPanel() {
   const [drag, setDrag] = useState(false);
   const [animate, setAnimate] = useState(false);
   const [done, setDone] = useState<Record<number, boolean>>({});
-  const { data, loading, error, analyze } = useFeedbackDigest();
+  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [acceptPrivacy, setAcceptPrivacy] = useState(false);
+  const [website, setWebsite] = useState("");
+  const { data, loading, error, consentLog, analyze } = useFeedbackDigest();
 
   const count = text.split("\n").filter((l) => l.trim()).length;
 
@@ -67,7 +71,7 @@ export default function FeedbackDigestPanel() {
   return (
     <div className="space-y-4">
       {/* Entrada */}
-      <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-5">
+      <div className="glass-panel rounded-2xl p-5 sm:p-6">
         <label
           htmlFor="csv"
           onDragOver={(e) => { e.preventDefault(); setDrag(true); }}
@@ -110,11 +114,25 @@ export default function FeedbackDigestPanel() {
           placeholder="Un comentario por línea"
           className="min-h-[130px] w-full rounded-lg border border-zinc-800 bg-zinc-900 p-3 text-sm outline-none focus-visible:border-indigo-400"
         />
-        <div className="mt-4 flex items-center gap-4">
+        <div className="mt-5 space-y-3 rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm text-zinc-300">
+          <label className="flex cursor-pointer items-start gap-3">
+            <input type="checkbox" checked={acceptTerms} onChange={(e) => setAcceptTerms(e.target.checked)} className="mt-1 h-4 w-4 accent-emerald-400" />
+            <span>Acepto los <a className="text-emerald-300 underline underline-offset-2" href="/terms">Términos y condiciones</a> y la <a className="text-emerald-300 underline underline-offset-2" href="/refunds">Política de reembolsos</a>.</span>
+          </label>
+          <label className="flex cursor-pointer items-start gap-3">
+            <input type="checkbox" checked={acceptPrivacy} onChange={(e) => setAcceptPrivacy(e.target.checked)} className="mt-1 h-4 w-4 accent-emerald-400" />
+            <span>Autorizo el tratamiento de los comentarios que ingreso y su procesamiento por la API de IA conforme a la <a className="text-emerald-300 underline underline-offset-2" href="/privacy">Política de privacidad</a>.</span>
+          </label>
+          <div className="absolute -left-[10000px] top-auto h-px w-px overflow-hidden" aria-hidden="true">
+            <label htmlFor="feedback-website">Deja este campo vacío</label>
+            <input id="feedback-website" name="website" tabIndex={-1} autoComplete="off" value={website} onChange={(e) => setWebsite(e.target.value)} />
+          </div>
+        </div>
+        <div className="mt-4 flex flex-wrap items-center gap-4">
           <button
-            onClick={() => analyze(text)}
-            disabled={loading || text.trim().length < 20}
-            className="rounded-lg bg-white px-4 py-2.5 text-sm font-semibold text-black disabled:opacity-40"
+            onClick={() => analyze(text, { terms: acceptTerms, privacy: acceptPrivacy }, website)}
+            disabled={loading || text.trim().length < 20 || !acceptTerms || !acceptPrivacy}
+            className="min-h-11 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 px-5 py-2.5 text-sm font-semibold text-zinc-950 shadow-lg shadow-emerald-950/30 transition hover:-translate-y-0.5 hover:from-emerald-400 hover:to-teal-400 disabled:cursor-not-allowed disabled:opacity-40"
           >
             {loading ? "Analizando…" : "Analizar Sentimiento e Impacto"}
           </button>
@@ -124,10 +142,12 @@ export default function FeedbackDigestPanel() {
       </div>
 
       {loading && (
-        <div role="status" className="rounded-xl border border-zinc-800 bg-zinc-950 p-6 text-sm text-zinc-400">
+        <div role="status" className="glass-panel rounded-2xl p-6 text-sm text-zinc-400">
           Gemini está leyendo y clasificando los comentarios…
         </div>
       )}
+
+      {data && consentLog && !loading && <ConsentLogCard log={consentLog} />}
 
       {data && !loading && (
         <div className="space-y-4">

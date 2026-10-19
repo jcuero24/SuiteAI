@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import ConsentLogCard from "@/components/ConsentLogCard";
 import { useScopeSnap } from "@/hooks/useScopeSnap";
 
 const TABS = ["Alcance y entregables", "Riesgos y preguntas", "Presupuesto estimado"];
@@ -9,16 +10,19 @@ export default function ScopeSnapPanel() {
   const [brief, setBrief] = useState("");
   const [rate, setRate] = useState(60);
   const [tab, setTab] = useState(0);
-  const { data, loading, error, generate } = useScopeSnap();
+  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [acceptPrivacy, setAcceptPrivacy] = useState(false);
+  const [website, setWebsite] = useState("");
+  const { data, loading, error, consentLog, generate } = useScopeSnap();
 
   const onGenerate = async () => {
     setTab(0);
-    await generate(brief);
+    await generate(brief, { terms: acceptTerms, privacy: acceptPrivacy }, website);
   };
 
   return (
     <div className="space-y-4">
-      <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-5">
+      <div className="glass-panel rounded-2xl p-5 sm:p-6">
         <label htmlFor="brief" className="text-sm font-medium">Brief del cliente</label>
         <textarea
           id="brief"
@@ -27,6 +31,20 @@ export default function ScopeSnapPanel() {
           placeholder="Pega aquí el correo, el chat o las notas de la llamada"
           className="mt-2 min-h-[140px] w-full rounded-lg border border-zinc-800 bg-zinc-900 p-3 text-sm outline-none focus-visible:border-indigo-400"
         />
+        <div className="mt-5 space-y-3 rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm text-zinc-300">
+          <label className="flex cursor-pointer items-start gap-3">
+            <input type="checkbox" checked={acceptTerms} onChange={(e) => setAcceptTerms(e.target.checked)} className="mt-1 h-4 w-4 accent-indigo-400" />
+            <span>Acepto los <a className="text-indigo-300 underline underline-offset-2" href="/terms">Términos y condiciones</a> y la <a className="text-indigo-300 underline underline-offset-2" href="/refunds">Política de reembolsos</a>.</span>
+          </label>
+          <label className="flex cursor-pointer items-start gap-3">
+            <input type="checkbox" checked={acceptPrivacy} onChange={(e) => setAcceptPrivacy(e.target.checked)} className="mt-1 h-4 w-4 accent-indigo-400" />
+            <span>Autorizo el tratamiento de los datos que ingreso y su procesamiento por la API de IA conforme a la <a className="text-indigo-300 underline underline-offset-2" href="/privacy">Política de privacidad</a>.</span>
+          </label>
+          <div className="absolute -left-[10000px] top-auto h-px w-px overflow-hidden" aria-hidden="true">
+            <label htmlFor="scope-website">Deja este campo vacío</label>
+            <input id="scope-website" name="website" tabIndex={-1} autoComplete="off" value={website} onChange={(e) => setWebsite(e.target.value)} />
+          </div>
+        </div>
         <div className="mt-4 flex flex-wrap items-end gap-4">
           <div>
             <label htmlFor="rate" className="mb-2 block text-sm font-medium">
@@ -43,8 +61,8 @@ export default function ScopeSnapPanel() {
           </div>
           <button
             onClick={onGenerate}
-            disabled={loading || brief.trim().length < 20}
-            className="rounded-lg bg-white px-4 py-2.5 text-sm font-semibold text-black disabled:opacity-40"
+            disabled={loading || brief.trim().length < 20 || !acceptTerms || !acceptPrivacy}
+            className="min-h-11 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-950/40 transition hover:-translate-y-0.5 hover:from-indigo-400 hover:to-violet-400 disabled:cursor-not-allowed disabled:opacity-40"
           >
             {loading ? "Generando…" : "Generar con IA"}
           </button>
@@ -54,8 +72,10 @@ export default function ScopeSnapPanel() {
         )}
       </div>
 
+      {data && consentLog && <ConsentLogCard log={consentLog} />}
+
       {data && (
-        <div className="rounded-xl border border-zinc-800 bg-zinc-950">
+        <div className="glass-panel rounded-2xl">
           <div className="flex overflow-x-auto border-b border-zinc-800 px-2">
             {TABS.map((t, i) => (
               <button
@@ -138,7 +158,7 @@ function Block({ title, items, ordered }: { title: string; items: string[]; orde
 
 function Stat({ label, value, hint }: { label: string; value: string; hint: string }) {
   return (
-    <div className="rounded-lg bg-zinc-900 p-4">
+    <div className="rounded-xl border border-white/10 bg-white/[0.04] p-4 backdrop-blur-lg">
       <div className="text-xs text-zinc-400">{label}</div>
       <div className="mt-1 text-2xl font-semibold tabular-nums">{value}</div>
       <div className="mt-1 text-xs text-zinc-500">{hint}</div>

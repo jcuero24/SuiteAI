@@ -1,4 +1,4 @@
-# VibeSaaS AI Suite 🚀
+# Suite IA Comercial 🚀
 
 An AI-powered commercial micro-SaaS suite built to optimize workflows for freelancers, digital agencies, and startups. This project integrates two high-value tools that solve critical challenges in software development operations: automated client project pricing and user feedback analytics.
 
@@ -56,3 +56,15 @@ Ensure you have [Node.js](https://nodejs.org) installed on your machine.
 
 ## 📄 License
 This project is open-source and available under the MIT License.
+
+
+## Configuración de producción
+
+Copia las variables de `.env.example` a `.env.local` y completa:
+
+- `NEXT_PUBLIC_SITE_URL`: URL HTTPS pública. Se usa en los metadatos, sitemap y robots.
+- `GEMINI_API_KEY`: clave privada del servidor; no uses el prefijo `NEXT_PUBLIC_`.
+- `GEMINI_MODELS`: modelos disponibles en tu proyecto de Gemini.
+- `NEXT_PUBLIC_GA_ID`: opcional. Si se configura, Google Analytics se carga solo después de aceptar analítica y puede retirarse desde el control de cookies.
+
+Antes de ofrecer el servicio, completa la identificación legal y domicilio del responsable en los documentos de `/terms` y `/privacy`. La tarjeta de consentimiento muestra una fecha y una IP truncada con fines demostrativos; no almacena una prueba duradera. Revisa los documentos con asesoría jurídica y la configuración de retención del proveedor de IA antes de procesar datos reales.
