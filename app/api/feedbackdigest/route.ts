@@ -114,6 +114,7 @@ export async function POST(req: Request) {
     return fail(400, "El archivo supera los 40.000 caracteres. Divídelo en partes más pequeñas.");
   }
 
+  const consentLog = createConsentLog(req);
   const ai = new GoogleGenAI({ apiKey });
   let lastMsg = "";
 
@@ -131,7 +132,7 @@ export async function POST(req: Request) {
         },
       });
       const parsed = JSON.parse(res.text ?? "") as FeedbackModelOutput;
-      return NextResponse.json({ data: finalize(parsed, feedback), consentLog: createConsentLog(req) });
+      return NextResponse.json({ data: finalize(parsed, feedback), consentLog });
     } catch (err) {
       lastMsg = err instanceof Error ? err.message : String(err);
       console.error(`[feedbackdigest] falló el modelo ${model}:`, err);

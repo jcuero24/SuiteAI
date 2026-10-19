@@ -74,6 +74,7 @@ export async function POST(req: Request) {
   if (brief.length < 20) return fail(400, "El brief es demasiado corto para analizarlo.");
   if (brief.length > 8000) return fail(400, "El brief supera los 8.000 caracteres.");
 
+  const consentLog = createConsentLog(req);
   const ai = new GoogleGenAI({ apiKey });
 
   for (const model of MODELS) {
@@ -90,7 +91,7 @@ export async function POST(req: Request) {
         },
       });
       const parsed = JSON.parse(res.text ?? "") as ScopeModelOutput;
-      return NextResponse.json({ data: finalize(parsed), consentLog: createConsentLog(req) });
+      return NextResponse.json({ data: finalize(parsed), consentLog });
     } catch (err) {
       console.error(`[scopesnap] falló el modelo ${model}:`, err);
     }
