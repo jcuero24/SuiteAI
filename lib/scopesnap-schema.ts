@@ -1,4 +1,4 @@
-export type Nivel = "Alto" | "Medio" | "Bajo";
+export type Nivel = "High" | "Medium" | "Low";
 
 export interface Entregable {
   nombre: string;
@@ -33,7 +33,7 @@ export const scopeJsonSchema = {
   properties: {
     alcance: {
       type: "string",
-      description: "Resumen del alcance del proyecto en 2 a 4 frases.",
+      description: "Summarize the project scope in 2 to 4 sentences.",
     },
     entregables: {
       type: "array",
@@ -42,7 +42,7 @@ export const scopeJsonSchema = {
         properties: {
           nombre: { type: "string" },
           descripcion: { type: "string" },
-          horas: { type: "number", description: "Horas de trabajo estimadas." },
+          horas: { type: "number", description: "Estimated work hours." },
         },
         required: ["nombre", "descripcion", "horas"],
       },
@@ -54,7 +54,7 @@ export const scopeJsonSchema = {
       items: {
         type: "object",
         properties: {
-          nivel: { type: "string", enum: ["Alto", "Medio", "Bajo"] },
+          nivel: { type: "string", enum: ["High", "Medium", "Low"] },
           descripcion: { type: "string" },
         },
         required: ["nivel", "descripcion"],
@@ -62,7 +62,7 @@ export const scopeJsonSchema = {
     },
     preguntas_cliente: {
       type: "array",
-      description: "Preguntas aclaratorias, de la más a la menos importante.",
+      description: "Clarifying questions, ordered from most to least important.",
       items: { type: "string" },
     },
     estimacion: {
@@ -70,7 +70,7 @@ export const scopeJsonSchema = {
       properties: {
         margen_pct: {
           type: "number",
-          description: "Margen de contingencia recomendado, entre 10 y 30.",
+          description: "Recommended contingency margin, between 10 and 30 percent.",
         },
       },
       required: ["margen_pct"],

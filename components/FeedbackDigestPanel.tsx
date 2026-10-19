@@ -3,20 +3,20 @@ import { useEffect, useState, type DragEvent } from "react";
 import { useFeedbackDigest } from "@/hooks/useFeedbackDigest";
 import ConsentLogCard from "@/components/ConsentLogCard";
 
-const SAMPLE = `El panel es muy lento al cargar los reportes, tardo minutos esperando
-Me encanta la interfaz, es muy fácil de usar
-No encuentro cómo conectar mi cuenta de Slack, falta una integración
-El onboarding es confuso, me perdí en el segundo paso
-Excelente soporte, me respondieron en diez minutos
-La app se cae cuando exporto más de mil filas
-Buen producto, cumple lo que promete
-Los reportes tardan demasiado y a veces dan error
-Faltan integraciones con HubSpot y Notion
-No entendí cómo invitar a mi equipo, muy confuso al empezar
-Genial la nueva versión, mucho más rápida en búsquedas
-El precio me parece caro frente a la competencia
-Uso la herramienta a diario para mi trabajo
-Sería útil un modo oscuro y atajos de teclado`;
+const SAMPLE = `The dashboard is very slow when loading reports; I wait for minutes
+I love the interface, it is very easy to use
+I cannot connect my Slack account; an integration is missing
+The onboarding is confusing; I got lost on the second step
+Excellent support, they replied in ten minutes
+The app crashes when I export more than one thousand rows
+Good product, it delivers what it promises
+Reports take too long and sometimes fail
+Integrations for HubSpot and Notion are missing
+I could not figure out how to invite my team; getting started was confusing
+The new version is great and search is much faster
+The price feels high compared with competitors
+I use the tool every day for work
+A dark mode and keyboard shortcuts would be useful`;
 
 const MAX_BYTES = 2 * 1024 * 1024;
 
@@ -46,7 +46,7 @@ export default function FeedbackDigestPanel() {
   async function readFile(file?: File) {
     if (!file) return;
     if (file.size > MAX_BYTES) {
-      setFileError("El archivo supera los 2 MB.");
+      setFileError("The file is larger than 2 MB.");
       return;
     }
     setFileError(null);
@@ -62,9 +62,9 @@ export default function FeedbackDigestPanel() {
 
   const sentiment = data
     ? [
-        { label: "Positivo", pct: data.porc_positivo, n: data.conteo_positivo, bar: "bg-emerald-400" },
-        { label: "Neutro", pct: data.porc_neutro, n: data.conteo_neutro, bar: "bg-zinc-400" },
-        { label: "Negativo", pct: data.porc_negativo, n: data.conteo_negativo, bar: "bg-rose-400" },
+        { label: "Positive", pct: data.porc_positivo, n: data.conteo_positivo, bar: "bg-emerald-400" },
+        { label: "Neutral", pct: data.porc_neutro, n: data.conteo_neutro, bar: "bg-zinc-400" },
+        { label: "Negative", pct: data.porc_negativo, n: data.conteo_negativo, bar: "bg-rose-400" },
       ]
     : [];
 
@@ -82,10 +82,10 @@ export default function FeedbackDigestPanel() {
           }`}
         >
           <span className="text-sm font-medium">
-            {fileName || "Arrastra un archivo CSV aquí"}
+            {fileName || "Drag a CSV file here"}
           </span>
           <span className="mt-1 text-xs text-zinc-400">
-            {fileName ? `${count} filas cargadas` : "o haz clic para elegir un .csv o .txt"}
+          {fileName ? `${count} rows loaded` : "or click to choose a .csv or .txt file"}
           </span>
           <input
             id="csv"
@@ -98,33 +98,33 @@ export default function FeedbackDigestPanel() {
         {fileError && <p role="alert" className="mt-2 text-sm text-rose-400">{fileError}</p>}
 
         <div className="mb-2 mt-5 flex items-center justify-between">
-          <label htmlFor="fb" className="text-sm font-medium">Comentarios en bruto</label>
+          <label htmlFor="fb" className="text-sm font-medium">Raw customer comments</label>
           <button
             type="button"
             onClick={() => { setText(SAMPLE); setFileName(""); }}
             className="rounded-lg border border-zinc-800 px-3 py-1.5 text-xs text-zinc-400 hover:text-white"
           >
-            Cargar datos de ejemplo
+            Load sample data
           </button>
         </div>
         <textarea
           id="fb"
           value={text}
           onChange={(e) => { setText(e.target.value); setFileName(""); }}
-          placeholder="Un comentario por línea"
+          placeholder="One comment per line"
           className="min-h-[130px] w-full rounded-lg border border-zinc-800 bg-zinc-900 p-3 text-sm outline-none focus-visible:border-indigo-400"
         />
         <div className="mt-5 space-y-3 rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm text-zinc-300">
           <label className="flex cursor-pointer items-start gap-3">
             <input type="checkbox" checked={acceptTerms} onChange={(e) => setAcceptTerms(e.target.checked)} className="mt-1 h-4 w-4 accent-emerald-400" />
-            <span>Acepto los <a className="text-emerald-300 underline underline-offset-2" href="/terms">Términos y condiciones</a> y la <a className="text-emerald-300 underline underline-offset-2" href="/refunds">Política de reembolsos</a>.</span>
+            <span>I agree to the <a className="text-emerald-300 underline underline-offset-2" href="/terms">Terms and Conditions</a> and <a className="text-emerald-300 underline underline-offset-2" href="/refunds">Refund Policy</a>.</span>
           </label>
           <label className="flex cursor-pointer items-start gap-3">
             <input type="checkbox" checked={acceptPrivacy} onChange={(e) => setAcceptPrivacy(e.target.checked)} className="mt-1 h-4 w-4 accent-emerald-400" />
-            <span>Autorizo el tratamiento de los comentarios que ingreso y su procesamiento por la API de IA conforme a la <a className="text-emerald-300 underline underline-offset-2" href="/privacy">Política de privacidad</a>.</span>
+            <span>I authorize the processing of the comments I provide by the AI API under the <a className="text-emerald-300 underline underline-offset-2" href="/privacy">Privacy Policy</a>.</span>
           </label>
           <div className="absolute -left-[10000px] top-auto h-px w-px overflow-hidden" aria-hidden="true">
-            <label htmlFor="feedback-website">Deja este campo vacío</label>
+            <label htmlFor="feedback-website">Leave this field empty</label>
             <input id="feedback-website" name="website" tabIndex={-1} autoComplete="off" value={website} onChange={(e) => setWebsite(e.target.value)} />
           </div>
         </div>
@@ -134,16 +134,16 @@ export default function FeedbackDigestPanel() {
             disabled={loading || text.trim().length < 20 || !acceptTerms || !acceptPrivacy}
             className="min-h-11 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 px-5 py-2.5 text-sm font-semibold text-zinc-950 shadow-lg shadow-emerald-950/30 transition hover:-translate-y-0.5 hover:from-emerald-400 hover:to-teal-400 disabled:cursor-not-allowed disabled:opacity-40"
           >
-            {loading ? "Analizando…" : "Analizar Sentimiento e Impacto"}
+            {loading ? "Analyzing…" : "Analyze sentiment and impact"}
           </button>
-          <span className="text-xs text-zinc-400">{count} líneas</span>
+          <span className="text-xs text-zinc-400">{count} lines</span>
         </div>
         {error && <p role="alert" className="mt-3 text-sm text-rose-400">{error}</p>}
       </div>
 
       {loading && (
         <div role="status" className="glass-panel rounded-2xl p-6 text-sm text-zinc-400">
-          Gemini está leyendo y clasificando los comentarios…
+          Gemini is reading and classifying the comments…
         </div>
       )}
 
@@ -154,9 +154,9 @@ export default function FeedbackDigestPanel() {
           {/* Sentimiento */}
           <section className="rounded-xl border border-zinc-800 bg-zinc-950 p-5">
             <div className="flex items-baseline justify-between">
-              <h2 className="text-sm font-medium">Sentimiento general</h2>
+              <h2 className="text-sm font-medium">Overall sentiment</h2>
               <span className="text-xs text-zinc-400">
-                {data.total_comentarios} comentarios analizados
+                {data.total_comentarios} comments analyzed
               </span>
             </div>
             <div className="mt-4 flex h-2.5 overflow-hidden rounded-full bg-zinc-900">
@@ -184,14 +184,14 @@ export default function FeedbackDigestPanel() {
 
           {/* Puntos de dolor */}
           <section className="rounded-xl border border-zinc-800 bg-zinc-950 p-5">
-            <h2 className="mb-4 text-sm font-medium">Principales puntos de dolor</h2>
+            <h2 className="mb-4 text-sm font-medium">Top customer pain points</h2>
             <div className="space-y-5">
               {data.puntos_dolor.map((p) => (
                 <div key={p.titulo}>
                   <div className="flex justify-between gap-3 text-sm">
                     <span className="font-medium">{p.titulo}</span>
                     <span className="shrink-0 tabular-nums text-zinc-400">
-                      {p.porcentaje}% ({p.menciones} menciones)
+                      {p.porcentaje}% ({p.menciones} mentions)
                     </span>
                   </div>
                   <div className="mt-2 h-1.5 rounded-full bg-zinc-900">
@@ -206,7 +206,7 @@ export default function FeedbackDigestPanel() {
                       “{p.cita}”
                       {!p.cita_verificada && (
                         <span className="ml-2 text-xs not-italic text-amber-400">
-                          (parafraseada, no aparece literal)
+                          (paraphrased, not a verbatim quote)
                         </span>
                       )}
                     </blockquote>
@@ -218,9 +218,9 @@ export default function FeedbackDigestPanel() {
 
           {/* Roadmap */}
           <section className="rounded-xl border border-zinc-800 bg-zinc-950 p-5">
-            <h2 className="text-sm font-medium">Tareas sugeridas para el roadmap</h2>
+            <h2 className="text-sm font-medium">Suggested roadmap actions</h2>
             <p className="mb-3 mt-1 text-xs text-zinc-400">
-              Marca las que ya planificaste.
+              Mark the actions you have already planned.
             </p>
             {data.tareas_roadmap.map((t, i) => (
               <label
@@ -238,7 +238,7 @@ export default function FeedbackDigestPanel() {
                 </span>
                 <span
                   className={`rounded-full border px-2 py-0.5 text-xs ${
-                    t.categoria === "Prioritario"
+                    t.categoria === "Priority"
                       ? "border-rose-500/40 text-rose-300"
                       : "border-zinc-700 text-zinc-400"
                   }`}

@@ -1,4 +1,4 @@
-export type Categoria = "Prioritario" | "Mejora";
+export type Categoria = "Priority" | "Improvement";
 
 export interface PuntoDolor {
   titulo: string;
@@ -64,7 +64,7 @@ export const feedbackJsonSchema = {
         type: "object",
         properties: {
           titulo: { type: "string" },
-          categoria: { type: "string", enum: ["Prioritario", "Mejora"] }
+          categoria: { type: "string", enum: ["Priority", "Improvement"] }
         },
         required: ["titulo", "categoria"]
       }

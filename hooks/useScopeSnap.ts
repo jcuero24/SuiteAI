@@ -21,12 +21,12 @@ export function useScopeSnap() {
         body: JSON.stringify({ brief, consent, website }),
       });
       const json = await res.json();
-      if (!res.ok) throw new Error(json.error ?? "Error inesperado.");
+      if (!res.ok) throw new Error(json.error ?? "Something went wrong.");
       const payload = json as { data: ScopeResult; consentLog: ConsentLog };
       setData(payload.data);
       setConsentLog(payload.consentLog);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "No se pudo generar la propuesta.");
+      setError(e instanceof Error ? e.message : "We could not generate the proposal.");
     } finally {
       setLoading(false);
     }

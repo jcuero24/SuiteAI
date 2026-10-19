@@ -2,19 +2,21 @@ import type { Metadata } from "next";
 import LegalDocument from "@/components/LegalDocument";
 
 export const metadata: Metadata = {
-  title: "Términos y condiciones",
-  description: "Términos y condiciones de Suite IA Comercial.",
+  title: "Terms and Conditions",
+  description: "Terms governing the use of Suite AI tools.",
 };
 
 export default function Page() {
-  return <LegalDocument title="Términos y condiciones">{<><p><strong>Vigencia: 18 de octubre de 2026.</strong></p>
-      <p>Este documento regula el acceso a ScopeSnap y FeedbackDigest, herramientas de demostración que transforman briefs y comentarios en resultados asistidos por inteligencia artificial.</p>
-      <h2>1. Responsable y contacto</h2><p>El responsable del servicio es el titular de Suite IA Comercial, Juan David Cuero. Para consultas, escribe a <a href="mailto:juancuero248@gmail.com">juancuero248@gmail.com</a>. La identificación fiscal y domicilio de notificaciones del responsable deben completarse antes de ofrecer el servicio comercialmente.</p>
-      <h2>2. Uso del servicio</h2><p>El usuario puede enviar texto o archivos CSV/TXT para obtener estimaciones o resúmenes. Debe contar con autorización para compartir la información de terceros y evitar datos sensibles, secretos comerciales, credenciales, datos de menores o información que no tenga derecho a procesar.</p>
-      <h2>3. Resultados de IA</h2><p>Los resultados son orientativos y pueden ser incompletos o inexactos. No constituyen asesoría profesional, presupuesto vinculante, decisión automatizada ni sustituyen la revisión humana. El usuario debe validar supuestos, cifras, citas y recomendaciones antes de usarlos o compartirlos.</p>
-      <h2>4. Propiedad y uso aceptable</h2><p>El usuario conserva los derechos sobre el contenido que aporta. Autoriza su tratamiento únicamente para prestar la función solicitada y proteger el servicio. No debe intentar vulnerar controles, enviar código malicioso ni usar la plataforma para fines ilícitos.</p>
-      <h2>5. Disponibilidad y cambios</h2><p>La herramienta puede modificarse o interrumpirse por mantenimiento, seguridad o cambios de proveedores. No se garantiza disponibilidad continua ni exactitud absoluta.</p>
-      <h2>6. Pagos y reembolsos</h2><p>Esta versión no cobra suscripciones ni procesa pagos. Si una oferta de pago se habilita en el futuro, sus condiciones y derechos de retracto o reembolso se informarán antes de la compra y se sujetarán a la ley aplicable.</p>
-      <h2>7. Ley aplicable</h2><p>Estos términos se interpretan conforme a las normas colombianas aplicables y, cuando corresponda, a las normas de protección de datos de la Unión Europea. Nada limita derechos irrenunciables del consumidor.</p>
-      <p>El uso de cada herramienta implica la aceptación expresa de estos términos y de las condiciones de reembolso aplicables, previa lectura de la política de privacidad.</p></>}</LegalDocument>;
+  return <LegalDocument title="Terms and Conditions"><>
+    <p><strong>Effective date: October 18, 2026.</strong></p>
+    <p>These terms govern access to ScopeSnap and FeedbackDigest, AI-assisted tools that turn project briefs and customer comments into structured outputs.</p>
+    <h2>1. Service operator and contact</h2><p>The service is operated by Juan David Cuero. For questions, email <a href="mailto:juancuero248@gmail.com">juancuero248@gmail.com</a>. The operator’s business registration and formal notice address must be completed before the service is offered commercially.</p>
+    <h2>2. Acceptable use</h2><p>You may submit text or CSV/TXT files to receive estimates or summaries. You must have the right and authority to share information about other people. Do not submit sensitive personal data, confidential business information, credentials, children’s data, or information you are not authorized to process.</p>
+    <h2>3. AI-generated results</h2><p>Results are informational, may be incomplete or inaccurate, and are not professional advice, binding quotations, or substitutes for human review. Validate assumptions, figures, quotes, and recommendations before relying on or sharing them. You remain responsible for decisions made using the output.</p>
+    <h2>4. Content and permitted use</h2><p>You retain your rights to the content you submit. You authorize its processing only to provide the requested feature and protect the service. You must not bypass safeguards, submit malicious code, or use the platform for unlawful purposes.</p>
+    <h2>5. Availability and changes</h2><p>The tools may be changed or interrupted for maintenance, security, or provider changes. Continuous availability and absolute accuracy are not guaranteed.</p>
+    <h2>6. Currency, payments, and refunds</h2><p>Price estimates are displayed in US dollars (USD). This preview version does not charge subscriptions or process payments. Before any paid offer is enabled, its total price, duration, cancellation method, and applicable withdrawal or refund rights will be disclosed. Mandatory consumer-protection rights take precedence.</p>
+    <h2>7. Governing law</h2><p>These terms are interpreted under applicable Colombian law and, where applicable, data-protection rules such as the EU GDPR. Nothing in these terms limits non-waivable consumer rights.</p>
+    <p>Using a tool requires explicit acceptance of these terms and the applicable refund policy after reviewing the Privacy Policy.</p>
+  </></LegalDocument>;
 }

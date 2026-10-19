@@ -61,7 +61,7 @@ export default function CookieConsent() {
           onClick={() => setOpen(true)}
           className="fixed bottom-3 left-3 z-40 rounded-full border border-white/15 bg-zinc-900/90 px-3 py-2 text-xs text-zinc-200 shadow-lg backdrop-blur-xl hover:bg-zinc-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-300"
         >
-          Configurar cookies
+          Cookie settings
         </button>
       )}
       {open && GA_ID && (
@@ -71,14 +71,14 @@ export default function CookieConsent() {
           aria-labelledby="cookie-consent-title"
           className="glass-panel fixed inset-x-3 bottom-3 z-50 mx-auto max-w-xl rounded-2xl p-4 shadow-2xl sm:inset-x-auto sm:right-5 sm:p-5"
         >
-          <h2 id="cookie-consent-title" className="font-semibold text-white">Tu privacidad importa</h2>
+          <h2 id="cookie-consent-title" className="font-semibold text-white">Your privacy matters</h2>
           <p className="mt-1 text-sm leading-6 text-zinc-300">
-            La analítica es opcional. Puedes aceptarla o continuar solo con almacenamiento necesario.{" "}
-            <a className="text-indigo-300 underline" href="/cookies">Leer política de cookies</a>
+            Analytics is optional. You can accept it or continue with essential storage only.{" "}
+            <a className="text-indigo-300 underline" href="/cookies">Read the cookie policy</a>
           </p>
           <div className="mt-4 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-            <button onClick={() => choose(false)} className="min-h-11 rounded-lg border border-white/15 px-4 text-sm text-zinc-200 hover:bg-white/5">Solo necesarias</button>
-            <button onClick={() => choose(true)} className="min-h-11 rounded-lg bg-indigo-500 px-4 text-sm font-semibold text-white hover:bg-indigo-400">Aceptar analítica</button>
+            <button onClick={() => choose(false)} className="min-h-11 rounded-lg border border-white/15 px-4 text-sm text-zinc-200 hover:bg-white/5">Essential only</button>
+            <button onClick={() => choose(true)} className="min-h-11 rounded-lg bg-indigo-500 px-4 text-sm font-semibold text-white hover:bg-indigo-400">Accept analytics</button>
           </div>
         </section>
       )}

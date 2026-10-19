@@ -1,6 +1,6 @@
-# Suite IA Comercial 🚀
+# Suite AI 🚀
 
-An AI-powered commercial micro-SaaS suite built to optimize workflows for freelancers, digital agencies, and startups. This project integrates two high-value tools that solve critical challenges in software development operations: automated client project pricing and user feedback analytics.
+An AI-assisted workspace for independent professionals and teams. ScopeSnap turns client briefs into structured project scopes and USD estimates; FeedbackDigest organizes customer comments into reviewable product insights. AI output is guidance and should be checked by a person.
 
 ## 🛠️ Included Tools
 
@@ -14,12 +14,12 @@ Transforms vague, messy client briefs or call notes into solid, structured comme
 Processes bulk text, reviews, or unstructured raw user feedback to streamline data-driven product decisions.
 - **Sentiment Distribution:** Accurately classifies and displays user satisfaction percentages (Positive, Neutral, Negative) using strict server-side arithmetic adjustments.
 - **Pain Point Extraction:** Autonomously identifies the top 3 critical user complaints, complete with verified literal quotes from the source text.
-- **Automated Roadmap:** Generates 3 action-oriented technical tasks categorized by priority (High Priority vs. Enhancement) for the engineering team.
+- **Automated Roadmap:** Suggests three action-oriented tasks categorized as Priority or Improvement.
 
 ## 🧰 Tech Stack
 
 - **Framework:** Next.js (App Router) & React 19
-- **Styling:** Tailwind CSS (Premium minimalist dark-mode interface)
+- **Styling:** Tailwind CSS v4 with a responsive glassmorphism interface and reduced-motion support
 - **Icons:** Lucide React
 - **Artificial Intelligence:** Google Gen AI SDK (`@google/genai`) integrating production-ready Gemini Flash models.
 - **Data Integrity:** Strict JSON Schema (Structured Outputs) enforcement to guarantee seamless backend-to-frontend rendering without UI breaking changes.
@@ -33,7 +33,7 @@ Ensure you have [Node.js](https://nodejs.org) installed on your machine.
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com
+   git clone https://github.com/jcuero24/SuiteAI.git
    ```
 2. Navigate into the project directory:
    ```bash
@@ -58,13 +58,24 @@ Ensure you have [Node.js](https://nodejs.org) installed on your machine.
 This project is open-source and available under the MIT License.
 
 
-## Configuración de producción
+## Production configuration
 
-Copia las variables de `.env.example` a `.env.local` y completa:
+Copy `.env.example` to `.env.local` and configure:
 
-- `NEXT_PUBLIC_SITE_URL`: URL HTTPS pública, obligatoria para las URLs canónicas, el sitemap y robots. Déjala vacía hasta confirmar el dominio.
-- `GEMINI_API_KEY`: clave privada del servidor; no uses el prefijo `NEXT_PUBLIC_`.
-- `GEMINI_MODELS`: modelos disponibles en tu proyecto de Gemini.
-- `NEXT_PUBLIC_GA_ID`: opcional. Si se configura, Google Analytics se carga solo después de aceptar analítica y puede retirarse desde el control de cookies.
+- `NEXT_PUBLIC_SITE_URL`: the confirmed public HTTPS URL. It is required to populate canonical metadata, sitemap, and robots references; leave it blank until the production domain is known.
+- `GEMINI_API_KEY`: server-only key. Do not add the `NEXT_PUBLIC_` prefix.
+- `GEMINI_MODELS`: models available to your Gemini project.
+- `NEXT_PUBLIC_GA_ID`: optional. If set, Google Analytics loads only after the visitor accepts analytics and can be disabled from cookie settings.
 
-Antes de ofrecer el servicio, completa la identificación legal y domicilio del responsable en los documentos de `/terms` y `/privacy`. La tarjeta de consentimiento muestra una fecha y una IP truncada con fines demostrativos; no almacena una prueba duradera. Revisa los documentos con asesoría jurídica y la configuración de retención del proveedor de IA antes de procesar datos reales.
+Before commercial launch, complete the operator’s legal identification and notice address in `/terms` and `/privacy`. The consent card displays a timestamp and truncated IP for demonstration; it does not save durable proof of consent. Review the legal documents and the AI provider’s retention settings before processing real data.
+
+## Build and run
+
+```bash
+npm ci
+npm run dev
+npm run build
+npm run start
+```
+
+The development and build scripts use Next.js Webpack mode with Tailwind’s PostCSS integration. Project estimates are displayed in USD; this preview does not collect payments.

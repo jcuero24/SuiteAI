@@ -28,20 +28,20 @@ export function useFeedbackDigest() {
         json = JSON.parse(raw);
       } catch {
         throw new Error(
-          `El servidor respondió ${res.status} con una página en lugar de JSON. ` +
-            `Revisa la terminal de Next.js y que exista app/api/feedbackdigest/route.ts.`
+          `The server returned a page instead of JSON (status ${res.status}). ` +
+            `Check the Next.js server output and confirm app/api/feedbackdigest/route.ts exists.`
         );
       }
 
       if (!res.ok) {
         const msg = (json as { error?: string })?.error;
-        throw new Error(msg ?? `Error ${res.status} del servidor.`);
+        throw new Error(msg ?? `Server error ${res.status}.`);
       }
       const payload = json as { data: FeedbackResult; consentLog: ConsentLog };
       setData(payload.data);
       setConsentLog(payload.consentLog);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "No se pudo analizar el feedback.");
+      setError(e instanceof Error ? e.message : "We could not analyze the feedback.");
     } finally {
       setLoading(false);
     }
