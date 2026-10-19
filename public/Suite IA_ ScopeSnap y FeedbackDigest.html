@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Suite IA: ScopeSnap y FeedbackDigest</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script src="https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/htm@3.1.1/dist/htm.umd.js"></script>
+<style>
+:root{--bg:#09090b;--card:#111114;--card2:#18181c;--line:#27272d;--fg:#fafafa;--mute:#9a9aa5;--acc:#8b8cf8;--acc2:#34d399;--bad:#fb7185;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root[data-theme=light]{--bg:#fafafa;--card:#fff;--card2:#f4f4f6;--line:#e4e4e9;--fg:#17171c;--mute:#6b6b78;--acc:#4f46e5;--acc2:#059669;--bad:#e11d48;color-scheme:light}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{background:var(--bg);color:var(--fg);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px}
+.line{border-color:var(--line)!important}
+.mute{color:var(--mute)}.acc{color:var(--acc)}.good{color:var(--acc2)}.bad{color:var(--bad)}
+.inp{background:var(--card2);border:1px solid var(--line);border-radius:10px;color:var(--fg);padding:.6rem .8rem;width:100%;outline:none;font-size:.875rem}
+.inp:focus-visible,button:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.btn{background:var(--fg);color:var(--bg);border-radius:10px;font-weight:600;font-size:.875rem;padding:.6rem 1rem;display:inline-flex;align-items:center;gap:.5rem;transition:opacity .15s}
+.btn:hover{opacity:.88}.btn:disabled{opacity:.4;cursor:not-allowed}
+.ghost{border:1px solid var(--line);border-radius:10px;font-size:.8125rem;padding:.45rem .75rem;display:inline-flex;align-items:center;gap:.4rem;color:var(--mute)}
+.ghost:hover{color:var(--fg);background:var(--card2)}
+.navon{background:var(--card2);color:var(--fg)}.navh:hover{background:var(--card2);color:var(--fg)}
+.tab{padding:.5rem .9rem;font-size:.875rem;color:var(--mute);border-bottom:2px solid transparent;white-space:nowrap}
+.tab.on{color:var(--fg);border-color:var(--acc)}
+.chip{font-size:.75rem;padding:.15rem .55rem;border-radius:999px;border:1px solid var(--line);color:var(--mute)}
+.fade{animation:f .3s ease}@keyframes f{from{opacity:0;transform:translateY(5px)}}
+.bar{transition:width .9s cubic-bezier(.2,.8,.2,1)}
+@media (prefers-reduced-motion:reduce){.fade,.bar{animation:none;transition:none}.animate-spin{animation:none}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+const {useState,useEffect}=React;
+const html=htm.bind(React.createElement);
+const I={
+grid:'<rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/>',
+file:'<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>',
+msg:'<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+spark:'<path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/>',
+sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>',
+moon:'<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
+up:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/>',
+ok:'<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/>',
+warn:'<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+help:'<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/>',
+arrow:'<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
+copy:'<rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>'
+};
+const Ic=({n,s=18})=>html`<svg width=${s} height=${s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" dangerouslySetInnerHTML=${{__html:I[n]}}/>`;
+const usd=n=>'$'+Math.round(n).toLocaleString('en-US');
+const Spin=()=>html`<div className="w-4 h-4 rounded-full border-2 border-current border-t-transparent animate-spin"/>`;
+
+/* ---------- Datos simulados ---------- */
+const BRIEF=`Hola! Necesito una app como Uber pero para pasear perros. Que la gente pueda pedir un paseador, ver dónde está en el mapa y pagar desde el celular. También queremos un panel para nosotros ver todo. Para iOS y Android, y lo queremos para el mes que viene. Presupuesto flexible pero no mucho 😅`;
+const DELIV=[
+{t:'App móvil para clientes (iOS y Android)',d:'Registro, solicitud de paseo, seguimiento en el mapa y pago.',h:120},
+{t:'App móvil para paseadores',d:'Aceptar paseos, ruta con GPS y estado en tiempo real.',h:80},
+{t:'Panel de administración web',d:'Gestión de usuarios, paseadores, pagos y métricas.',h:60},
+{t:'Backend y API',d:'Autenticación, asignación de paseadores y notificaciones push.',h:90},
+{t:'Integración de pagos',d:'Cobros con tarjeta y reembolsos mediante Stripe.',h:30},
+{t:'Pruebas y publicación en tiendas',d:'QA, builds y envío a App Store y Google Play.',h:40}];
+const EXCL=['Verificación de antecedentes de paseadores','Chat en vivo dentro de la app','Marketing y posicionamiento en tiendas','Soporte posterior al lanzamiento'];
+const RISKS=[
+['Alto','El plazo de un mes no es compatible con tres productos (dos apps y un panel).'],
+['Alto','“Como Uber” no define funciones concretas y abre la puerta a ampliar el alcance.'],
+['Medio','El seguimiento en tiempo real aumenta el coste de mapas y el consumo de batería.'],
+['Medio','Seguros y responsabilidad legal si una mascota sufre un accidente.'],
+['Bajo','“Presupuesto flexible” no tiene una cifra de referencia.']];
+const QS=[
+'¿Qué funciones de Uber son imprescindibles para el primer lanzamiento?',
+'¿Cuál es la fecha límite real y qué la fija (evento, inversor, campaña)?',
+'¿Cuál es el presupuesto máximo y cómo se repartiría por fases?',
+'¿Ya cuentan con paseadores, o hay que construir el proceso de alta y verificación?',
+'¿En qué ciudades o países operarán y en qué moneda cobrarán?'];
+const SFB=`El panel es muy lento al cargar los reportes, tardo minutos esperando
+Me encanta la interfaz, es muy fácil de usar
+No encuentro cómo conectar mi cuenta de Slack, falta una integración
+El onboarding es confuso, me perdí en el segundo paso
+Excelente soporte, me respondieron en diez minutos
+La app se cae cuando exporto más de mil filas
+Buen producto, cumple lo que promete
+Los reportes tardan demasiado y a veces dan error
+Faltan integraciones con HubSpot y Notion
+No entendí cómo invitar a mi equipo, muy confuso al empezar
+Genial la nueva versión, mucho más rápida en búsquedas
+El precio me parece caro frente a la competencia
+Uso la herramienta a diario para mi trabajo
+Sería útil un modo oscuro y atajos de teclado`;
+const PAINS=[
+{t:'Reportes lentos y fallos al exportar',p:34,q:'“Los reportes tardan demasiado y a veces dan error.”',imp:'Alto'},
+{t:'Onboarding confuso',p:27,q:'“No entendí cómo invitar a mi equipo, muy confuso al empezar.”',imp:'Alto'},
+{t:'Faltan integraciones (Slack, HubSpot, Notion)',p:19,q:'“Faltan integraciones con HubSpot y Notion.”',imp:'Medio'}];
+const ROAD=[
+['Optimizar consultas y añadir caché en reportes','Alto','M'],
+['Rediseñar el onboarding con una lista de pasos guiada','Alto','S'],
+['Crear una integración nativa con Slack','Medio','L'],
+['Corregir el fallo al exportar archivos grandes','Alto','S'],
+['Añadir modo oscuro y atajos de teclado','Bajo','M']];
+const POS=/encant|excelent|genial|rápid|fácil|perfect|gracias|útil|increíble|buen|recomiend/i;
+const NEG=/lent|error|\bcaro\b|confus|falla|problema|difícil|no puedo|malo|frustr|bug|se cae|perd|tard|no encuentro|falta/i;
+
+/* ---------- Layout ---------- */
+const NAV=[['home','Inicio','grid'],['scope','ScopeSnap','file'],['feed','FeedbackDigest','msg']];
+
+function App(){
+  const [v,setV]=useState('home');
+  const [th,setTh]=useState('dark');
+  const [st,setSt]=useState({p:3,f:1200,h:46});
+  useEffect(()=>{document.documentElement.dataset.theme=th},[th]);
+  const Theme=html`<button onClick=${()=>setTh(th==='dark'?'light':'dark')} className="ghost" aria-label="Cambiar tema"><${Ic} n=${th==='dark'?'sun':'moon'} s=${15}/>${th==='dark'?'Modo claro':'Modo oscuro'}</button>`;
+  return html`<div className="md:flex min-h-screen">
+    <aside className="hidden md:flex flex-col w-60 shrink-0 border-r line p-4 sticky top-0 h-screen">
+      <div className="flex items-center gap-2 px-2 py-1 mb-6 font-semibold"><span className="w-6 h-6 rounded-md flex items-center justify-center" style=${{background:'linear-gradient(135deg,var(--acc),var(--acc2))',color:'#fff'}}><${Ic} n="spark" s=${14}/></span>Suite IA</div>
+      <nav className="flex flex-col gap-1">${NAV.map(([id,l,ic])=>html`<button key=${id} onClick=${()=>setV(id)} className=${`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition ${v===id?'navon':'mute navh'}`}><${Ic} n=${ic} s=${16}/>${l}</button>`)}</nav>
+      <div className="mt-auto">${Theme}</div>
+    </aside>
+    <header className="md:hidden flex items-center gap-1 p-3 border-b line overflow-x-auto">
+      ${NAV.map(([id,l,ic])=>html`<button key=${id} onClick=${()=>setV(id)} className=${`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm whitespace-nowrap ${v===id?'navon':'mute'}`}><${Ic} n=${ic} s=${15}/>${l}</button>`)}
+      <button onClick=${()=>setTh(th==='dark'?'light':'dark')} className="ml-auto p-2 mute" aria-label="Cambiar tema"><${Ic} n=${th==='dark'?'sun':'moon'} s=${16}/></button>
+    </header>
+    <main className="flex-1 min-w-0 w-full max-w-5xl mx-auto p-5 md:p-10">
+      ${v==='home'&&html`<${Home} go=${setV} st=${st}/>`}
+      ${v==='scope'&&html`<${Scope} done=${()=>setSt(s=>({...s,p:s.p+1,h:s.h+4}))}/>`}
+      ${v==='feed'&&html`<${Feed} done=${n=>setSt(s=>({...s,f:s.f+n}))}/>`}
+    </main>
+  </div>`;
+}
+
+/* ---------- Dashboard ---------- */
+function Home({go,st}){
+  const C=[
+    {id:'scope',n:'ScopeSnap',ic:'file',d:'Convierte un brief confuso en alcance, riesgos, preguntas y presupuesto.',a:st.p,al:'propuestas generadas este mes',b:st.h+' h',bl:'de análisis ahorradas'},
+    {id:'feed',n:'FeedbackDigest',ic:'msg',d:'Resume cientos de comentarios en sentimiento, puntos de dolor y tareas de roadmap.',a:st.f.toLocaleString('en-US'),al:'feedbacks analizados',b:'12',bl:'temas recurrentes detectados'}];
+  return html`<div className="fade">
+    <h1 className="text-3xl font-semibold tracking-tight">Buenas tardes</h1>
+    <p className="mute mt-2 max-w-lg">Dos herramientas para dejar de interpretar briefs y comentarios a mano. Elige por dónde empezar.</p>
+    <div className="grid md:grid-cols-2 gap-4 mt-8">
+      ${C.map(c=>html`<button key=${c.id} onClick=${()=>go(c.id)} className="card p-5 text-left transition hover:border-[var(--acc)]">
+        <div className="flex items-center gap-2 font-medium"><span className="acc"><${Ic} n=${c.ic}/></span>${c.n}</div>
+        <p className="mute text-sm mt-2 min-h-[2.5rem]">${c.d}</p>
+        <div className="flex gap-8 mt-5">
+          <div><div className="text-2xl font-semibold tabular-nums">${c.a}</div><div className="mute text-xs mt-0.5">${c.al}</div></div>
+          <div><div className="text-2xl font-semibold tabular-nums">${c.b}</div><div className="mute text-xs mt-0.5">${c.bl}</div></div>
+        </div>
+        <div className="mt-5 text-sm acc inline-flex items-center gap-1.5">Abrir ${c.n} <${Ic} n="arrow" s=${14}/></div>
+      </button>`)}
+    </div>
+    <div className="card mt-6">
+      <div className="px-5 py-3 border-b line text-sm font-medium">Actividad reciente</div>
+      ${[['App de paseo de perros','ScopeSnap','Hace 2 horas'],['Encuesta NPS de septiembre','FeedbackDigest','Ayer'],['Rediseño de tienda online','ScopeSnap','Hace 4 días']].map(([a,b,c])=>html`<div key=${a} className="px-5 py-3 flex items-center justify-between text-sm border-b line last:border-0"><span>${a}<span className="mute"> en ${b}</span></span><span className="mute text-xs">${c}</span></div>`)}
+    </div>
+  </div>`;
+}
+
+/* ---------- ScopeSnap ---------- */
+const SSTEPS=['Leyendo el brief','Extrayendo entregables','Detectando riesgos y ambigüedades','Calculando la estimación'];
+function Scope({done}){
+  const [brief,setBrief]=useState('');
+  const [rate,setRate]=useState(60);
+  const [ph,setPh]=useState('idle');
+  const [step,setStep]=useState(0);
+  const [tab,setTab]=useState(0);
+  const [cp,setCp]=useState(false);
+  useEffect(()=>{
+    if(ph!=='loading')return;
+    if(step>=SSTEPS.length){setPh('done');done();return;}
+    const t=setTimeout(()=>setStep(step+1),700);
+    return()=>clearTimeout(t);
+  },[ph,step]);
+  const go=()=>{setStep(0);setTab(0);setPh('loading')};
+  const sub=DELIV.reduce((a,x)=>a+x.h,0), cont=Math.round(sub*.15), tot=sub+cont, cost=tot*(+rate||0);
+  const copy=()=>{try{navigator.clipboard.writeText(QS.map((q,i)=>(i+1)+'. '+q).join('\n'))}catch(e){}setCp(true);setTimeout(()=>setCp(false),1800)};
+  const lvl={Alto:'bad',Medio:'acc',Bajo:'good'};
+  return html`<div className="fade">
+    <h1 className="text-2xl font-semibold tracking-tight">ScopeSnap</h1>
+    <p className="mute mt-1 text-sm">Pega el brief del cliente tal como llegó y obtén una propuesta lista para revisar.</p>
+    <div className="card p-5 mt-6">
+      <div className="flex items-center justify-between mb-2"><label htmlFor="brief" className="text-sm font-medium">Brief del cliente</label>
+        <button className="ghost" onClick=${()=>setBrief(BRIEF)}><${Ic} n="spark" s=${14}/>Cargar ejemplo</button></div>
+      <textarea id="brief" className="inp min-h-[140px] resize-y" placeholder="Pega aquí el correo, el chat o las notas de la llamada" value=${brief} onChange=${e=>setBrief(e.target.value)}/>
+      <div className="flex flex-wrap items-end gap-4 mt-4">
+        <div><label htmlFor="rate" className="text-sm font-medium block mb-2">Tarifa por hora (USD)</label>
+          <div className="relative w-36"><span className="absolute left-3 top-1/2 -translate-y-1/2 mute text-sm">$</span><input id="rate" type="number" min="1" className="inp !pl-7" value=${rate} onChange=${e=>setRate(e.target.value)}/></div></div>
+        <button className="btn" disabled=${!brief.trim()||ph==='loading'} onClick=${go}>${ph==='loading'?html`<${Spin}/>Procesando`:html`<${Ic} n="spark" s=${16}/>Generar propuesta`}</button>
+      </div>
+    </div>
+    ${ph==='idle'&&html`<div className="card p-8 mt-4 text-center mute text-sm">Aquí aparecerá el alcance, los riesgos y el presupuesto de tu proyecto.</div>`}
+    ${ph==='loading'&&html`<div className="card p-6 mt-4" role="status">
+      <div className="h-1.5 rounded-full overflow-hidden" style=${{background:'var(--card2)'}}><div className="h-full bar" style=${{width:(step/SSTEPS.length*100)+'%',background:'linear-gradient(90deg,var(--acc),var(--acc2))'}}/></div>
+      <ul className="mt-4 space-y-2 text-sm">${SSTEPS.map((s,i)=>html`<li key=${s} className=${`flex items-center gap-2 ${i<step?'good':i===step?'':'mute'}`}>${i<step?html`<${Ic} n="ok" s=${15}/>`:i===step?html`<${Spin}/>`:html`<span className="w-4"/>`}${s}</li>`)}</ul>
+    </div>`}
+    ${ph==='done'&&html`<div className="card mt-4 fade">
+      <div className="flex overflow-x-auto border-b line px-2">${['Alcance y entregables','Riesgos y preguntas para el cliente','Presupuesto estimado'].map((t,i)=>html`<button key=${t} onClick=${()=>setTab(i)} className=${'tab '+(tab===i?'on':'')}>${t}</button>`)}</div>
+      <div className="p-5">
+      ${tab===0&&html`<div>
+        <ul className="divide-y" style=${{'--tw-divide-opacity':1}}>${DELIV.map(x=>html`<li key=${x.t} className="py-3 flex gap-3 justify-between border-b line last:border-0"><div><div className="text-sm font-medium">${x.t}</div><div className="mute text-sm mt-0.5">${x.d}</div></div><span className="chip h-fit tabular-nums">${x.h} h</span></li>`)}</ul>
+        <div className="mt-5 text-sm font-medium">Fuera del alcance</div>
+        <div className="flex flex-wrap gap-2 mt-2">${EXCL.map(x=>html`<span key=${x} className="chip">${x}</span>`)}</div>
+      </div>`}
+      ${tab===1&&html`<div className="grid md:grid-cols-2 gap-6">
+        <div><div className="text-sm font-medium mb-3 flex items-center gap-2"><${Ic} n="warn" s=${16}/>Riesgos detectados</div>
+          <ul className="space-y-3">${RISKS.map(([l,t])=>html`<li key=${t} className="text-sm flex gap-2"><span className=${'font-medium shrink-0 w-12 '+lvl[l]}>${l}</span><span className="mute">${t}</span></li>`)}</ul></div>
+        <div><div className="flex items-center justify-between mb-3"><div className="text-sm font-medium flex items-center gap-2"><${Ic} n="help" s=${16}/>Preguntas para el cliente</div>
+          <button className="ghost" onClick=${copy}><${Ic} n=${cp?'ok':'copy'} s=${14}/>${cp?'Copiado':'Copiar'}</button></div>
+          <ol className="space-y-3 list-decimal pl-5 text-sm marker:text-[var(--mute)]">${QS.map(q=>html`<li key=${q}>${q}</li>`)}</ol></div>
+      </div>`}
+      ${tab===2&&html`<div>
+        <div className="grid sm:grid-cols-3 gap-3">
+          <div className="rounded-lg p-4" style=${{background:'var(--card2)'}}><div className="mute text-xs">Horas totales</div><div className="text-2xl font-semibold mt-1 tabular-nums">${tot} h</div><div className="mute text-xs mt-1">Incluye 15% de margen (${cont} h)</div></div>
+          <div className="rounded-lg p-4" style=${{background:'var(--card2)'}}><div className="mute text-xs">Precio estimado</div><div className="text-2xl font-semibold mt-1 tabular-nums">${usd(cost)}</div><div className="mute text-xs mt-1">Rango ${usd(cost*.9)} a ${usd(cost*1.2)}</div></div>
+          <div className="rounded-lg p-4" style=${{background:'var(--card2)'}}><div className="mute text-xs">Duración</div><div className="text-2xl font-semibold mt-1 tabular-nums">${Math.ceil(tot/30)} semanas</div><div className="mute text-xs mt-1">1 persona, 30 h por semana</div></div>
+        </div>
+        <div className="mt-5 space-y-3">${DELIV.map(x=>html`<div key=${x.t}><div className="flex justify-between text-sm mb-1"><span>${x.t}</span><span className="mute tabular-nums">${x.h} h, ${usd(x.h*(+rate||0))}</span></div>
+          <div className="h-1.5 rounded-full" style=${{background:'var(--card2)'}}><div className="h-full rounded-full" style=${{width:(x.h/120*100)+'%',background:'var(--acc)'}}/></div></div>`)}</div>
+        <p className="mute text-xs mt-4">Cambia la tarifa arriba y el presupuesto se recalcula al instante.</p>
+      </div>`}
+      </div>
+    </div>`}
+  </div>`;
+}
+
+/* ---------- FeedbackDigest ---------- */
+const FSTEPS=['Leyendo comentarios','Clasificando sentimiento','Agrupando temas recurrentes'];
+function Feed({done}){
+  const [txt,setTxt]=useState('');
+  const [file,setFile]=useState('');
+  const [drag,setDrag]=useState(false);
+  const [ph,setPh]=useState('idle');
+  const [r,setR]=useState(null);
+  const [on,setOn]=useState(false);
+  const [chk,setChk]=useState({});
+  const [fs,setFs]=useState(0);
+  const lines=txt.split('\n').map(s=>s.trim()).filter(Boolean);
+  const read=f=>{if(!f)return;const rd=new FileReader();rd.onload=()=>{setTxt(String(rd.result));setFile(f.name)};rd.readAsText(f)};
+  useEffect(()=>{
+    if(ph!=='loading')return;
+    if(fs>=FSTEPS.length){
+      const n=lines.length;
+      let p=0,g=0;lines.forEach(l=>{if(NEG.test(l))g++;else if(POS.test(l))p++});
+      const pp=Math.round(p/n*100),gp=Math.round(g/n*100);
+      setR({n,pos:pp,neg:gp,neu:Math.max(0,100-pp-gp)});setChk({});setOn(false);setPh('done');done(n);
+      setTimeout(()=>setOn(true),60);return;
+    }
+    const t=setTimeout(()=>setFs(fs+1),750);return()=>clearTimeout(t);
+  },[ph,fs]);
+  const run=()=>{setFs(0);setPh('loading')};
+  const S=r?[['Positivo',r.pos,'#34d399'],['Neutro',r.neu,'#8b8f9c'],['Negativo',r.neg,'#fb7185']]:[];
+  const ic={Alto:'bad',Medio:'acc',Bajo:'good'};
+  return html`<div className="fade">
+    <h1 className="text-2xl font-semibold tracking-tight">FeedbackDigest</h1>
+    <p className="mute mt-1 text-sm">Sube un CSV o pega comentarios de clientes, uno por línea, y descubre qué mejorar primero.</p>
+    <div className="card p-5 mt-6">
+      <label htmlFor="drop" onDragOver=${e=>{e.preventDefault();setDrag(true)}} onDragLeave=${()=>setDrag(false)} onDrop=${e=>{e.preventDefault();setDrag(false);read(e.dataTransfer.files[0])}}
+        className="flex flex-col items-center justify-center text-center rounded-xl py-8 px-4 cursor-pointer transition" style=${{border:'1.5px dashed '+(drag?'var(--acc)':'var(--line)'),background:drag?'var(--card2)':'transparent'}}>
+        <span className="acc"><${Ic} n="up" s=${22}/></span>
+        <span className="text-sm font-medium mt-2">${file?file:'Arrastra un archivo CSV aquí'}</span>
+        <span className="mute text-xs mt-1">${file?lines.length+' comentarios cargados':'o haz clic para elegir un archivo .csv o .txt'}</span>
+        <input id="drop" type="file" accept=".csv,.txt" className="sr-only" onChange=${e=>read(e.target.files[0])}/>
+      </label>
+      <div className="flex items-center justify-between mt-5 mb-2"><label htmlFor="fb" className="text-sm font-medium">Comentarios en bruto</label>
+        <button className="ghost" onClick=${()=>{setTxt(SFB);setFile('')}}><${Ic} n="spark" s=${14}/>Cargar datos de ejemplo</button></div>
+      <textarea id="fb" className="inp min-h-[130px] resize-y" placeholder="Un comentario por línea" value=${txt} onChange=${e=>{setTxt(e.target.value);setFile('')}}/>
+      <div className="flex items-center gap-4 mt-4"><button className="btn" disabled=${!lines.length||ph==='loading'} onClick=${run}>${ph==='loading'?html`<${Spin}/>Analizando`:html`<${Ic} n="spark" s=${16}/>Analizar sentimiento e impacto`}</button>
+        <span className="mute text-xs">${lines.length} comentarios</span></div>
+    </div>
+    ${ph==='idle'&&html`<div className="card p-8 mt-4 text-center mute text-sm">Carga datos para ver sentimiento, puntos de dolor y tareas sugeridas.</div>`}
+    ${ph==='loading'&&html`<div className="card p-6 mt-4" role="status"><ul className="space-y-2 text-sm">${FSTEPS.map((s,i)=>html`<li key=${s} className=${`flex items-center gap-2 ${i<fs?'good':i===fs?'':'mute'}`}>${i<fs?html`<${Ic} n="ok" s=${15}/>`:i===fs?html`<${Spin}/>`:html`<span className="w-4"/>`}${s}</li>`)}</ul></div>`}
+    ${ph==='done'&&r&&html`<div className="mt-4 space-y-4 fade">
+      <div className="card p-5">
+        <div className="flex items-baseline justify-between"><div className="text-sm font-medium">Sentimiento general</div><div className="mute text-xs">${r.n} comentarios analizados</div></div>
+        <div className="flex h-2.5 rounded-full overflow-hidden mt-4" style=${{background:'var(--card2)'}}>${S.map(([l,p,c])=>html`<div key=${l} className="bar" style=${{width:on?p+'%':'0%',background:c}}/>`)}</div>
+        <div className="grid grid-cols-3 gap-3 mt-4">${S.map(([l,p,c])=>html`<div key=${l}><div className="flex items-center gap-2 text-xs mute"><span className="w-2 h-2 rounded-full" style=${{background:c}}/>${l}</div><div className="text-2xl font-semibold tabular-nums mt-1">${p}%</div></div>`)}</div>
+      </div>
+      <div className="card p-5">
+        <div className="text-sm font-medium mb-4">Principales puntos de dolor</div>
+        <div className="space-y-5">${PAINS.map(x=>html`<div key=${x.t}>
+          <div className="flex justify-between gap-3 text-sm"><span className="font-medium">${x.t}</span><span className="mute shrink-0 tabular-nums">${x.p}% (${Math.max(1,Math.round(r.n*x.p/100))} menciones)</span></div>
+          <div className="h-1.5 rounded-full mt-2" style=${{background:'var(--card2)'}}><div className="h-full rounded-full bar" style=${{width:on?x.p*2+'%':'0%',background:'var(--bad)'}}/></div>
+          <p className="mute text-sm mt-2 italic">${x.q}</p></div>`)}</div>
+      </div>
+      <div className="card p-5">
+        <div className="text-sm font-medium mb-1">Tareas sugeridas para el roadmap</div>
+        <p className="mute text-xs mb-3">Ordenadas por impacto estimado. Marca las que ya planificaste.</p>
+        ${ROAD.map(([t,i,e],k)=>html`<label key=${t} className="flex items-center gap-3 py-2.5 border-b line last:border-0 cursor-pointer">
+          <input type="checkbox" checked=${!!chk[k]} onChange=${()=>setChk({...chk,[k]:!chk[k]})} className="w-4 h-4 accent-[var(--acc)]"/>
+          <span className=${'text-sm flex-1 '+(chk[k]?'mute line-through':'')}>${t}</span>
+          <span className=${'chip '+ic[i]}>Impacto ${i.toLowerCase()}</span><span className="chip">Esfuerzo ${e}</span></label>`)}
+      </div>
+    </div>`}
+  </div>`;
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(html`<${App}/>`);
+</script>
+</body>
+</html>

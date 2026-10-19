@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# VibeSaaS AI Suite 🚀
 
-## Getting Started
+An AI-powered commercial micro-SaaS suite built to optimize workflows for freelancers, digital agencies, and startups. This project integrates two high-value tools that solve critical challenges in software development operations: automated client project pricing and user feedback analytics.
 
-First, run the development server:
+## 🛠️ Included Tools
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### 1. ScopeSnap 📊
+Transforms vague, messy client briefs or call notes into solid, structured commercial proposals.
+- **Scope Extraction:** Automatically extracts core deliverables, logical assumptions, and explicit exclusions.
+- **Financial Analytics:** Computes total estimated development hours with an automatic safety contingency margin, multiplied by the developer's hourly rate to output a structured budget in USD.
+- **Risk Mitigation:** Detects early contract risks and generates prioritized clarifying questions to send to the client.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. FeedbackDigest 📈
+Processes bulk text, reviews, or unstructured raw user feedback to streamline data-driven product decisions.
+- **Sentiment Distribution:** Accurately classifies and displays user satisfaction percentages (Positive, Neutral, Negative) using strict server-side arithmetic adjustments.
+- **Pain Point Extraction:** Autonomously identifies the top 3 critical user complaints, complete with verified literal quotes from the source text.
+- **Automated Roadmap:** Generates 3 action-oriented technical tasks categorized by priority (High Priority vs. Enhancement) for the engineering team.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🧰 Tech Stack
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Framework:** Next.js (App Router) & React 19
+- **Styling:** Tailwind CSS (Premium minimalist dark-mode interface)
+- **Icons:** Lucide React
+- **Artificial Intelligence:** Google Gen AI SDK (`@google/genai`) integrating production-ready Gemini Flash models.
+- **Data Integrity:** Strict JSON Schema (Structured Outputs) enforcement to guarantee seamless backend-to-frontend rendering without UI breaking changes.
 
-## Learn More
+## 🚀 Getting Started
 
-To learn more about Next.js, take a look at the following resources:
+### Prerequisites
+Ensure you have [Node.js](https://nodejs.org) installed on your machine.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Installation & Local Setup
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Clone this repository:
+   ```bash
+   git clone https://github.com
+   ```
+2. Navigate into the project directory:
+   ```bash
+   cd suite-ai
+   ```
+3. Install the dependencies:
+   ```bash
+   npm install
+   ```
+4. Create a `.env.local` file in the root directory and add your Google AI Studio credentials:
+   ```env
+   GEMINI_API_KEY=your_google_ai_studio_api_key_here
+   GEMINI_MODELS=gemini-2.5-flash
+   ```
+5. Run the development server:
+   ```bash
+   npm run dev
+   ```
+6. Open [http://localhost:3000](http://localhost:3000) in your browser to view the application.
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 📄 License
+This project is open-source and available under the MIT License.
