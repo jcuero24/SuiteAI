@@ -62,7 +62,7 @@ This project is open-source and available under the MIT License.
 
 Copia las variables de `.env.example` a `.env.local` y completa:
 
-- `NEXT_PUBLIC_SITE_URL`: URL HTTPS pública. Se usa en los metadatos, sitemap y robots.
+- `NEXT_PUBLIC_SITE_URL`: URL HTTPS pública, obligatoria para las URLs canónicas, el sitemap y robots. Déjala vacía hasta confirmar el dominio.
 - `GEMINI_API_KEY`: clave privada del servidor; no uses el prefijo `NEXT_PUBLIC_`.
 - `GEMINI_MODELS`: modelos disponibles en tu proyecto de Gemini.
 - `NEXT_PUBLIC_GA_ID`: opcional. Si se configura, Google Analytics se carga solo después de aceptar analítica y puede retirarse desde el control de cookies.
